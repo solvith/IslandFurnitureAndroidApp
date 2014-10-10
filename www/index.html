@@ -1,0 +1,94 @@
+<html>
+<!-- NFC INTENT NOT PERFECT 
+
+-->
+
+<head>
+<title>Island Furniture</title>
+<link rel="stylesheet" type="text/css" href="css/af.ui.css" />
+<link rel="stylesheet" type="text/css" href="css/icons.css" />
+<script type="text/javascript" charset="utf-8" src="ui/appframework.ui.min.js"></script> 
+
+<script type="text/javascript">$.ui.useOSThemes=false</script>   
+</head>
+<body> 
+
+
+
+<div id="afui">
+
+<div id="header">
+<!-- header -->
+<header>
+<a id='menubadge' onclick='af.ui.toggleSideMenu()' class='menuButton'></a>
+</header>
+</div>
+
+<!-- content-->
+<div id="content">
+ <!-- side nav -->
+<nav>
+ <ul class="list">
+<li  class="divider">IslandFurniture</li>
+<li >
+<a href="#home">
+Home</a></li>
+  <li ><a href="#catalog">Catalog</a></li>
+  <li ><a href="#shop">Shopping List</a></li>
+    <li ><a href="#member">Membership</a></li>
+  <li ><a href="#locate">Locate</a></li>
+  </ul>
+</nav>
+
+
+<div class="panel" data-title="Settings" id="settings">
+    <form>
+	<br/>
+	Server IP Address
+	<br/>
+      <input id="IP_ADD" type="text" placeholder="SERVER IP ADDRESS" value="172.23.10.73" onchange="javascript:update_ip(this.value)">
+	  <script type="text/javascript">
+	  if (localStorage.getItem("IPADDRESS")!=null)
+	  {
+	  $("#IP_ADD").val(localStorage.getItem("IPADDRESS"));
+	  }
+	  
+		function update_ip(value){
+		localStorage.setItem("IPADDRESS",value);
+		}
+	  </script>
+	  
+    <br/>
+	</form>
+
+</div>
+
+<!-- side banner-->
+<div class="panel" data-title="Island Furniture" selected="true" id="home">
+  <ul class="list">
+    <li><a class="icon heart">Latest Products</a></li>
+    <li><a class="icon tag">Product Catalog</a></li>
+	    <li><a class="icon star">Shopping List</a></li>
+    <li><a class="icon key">Membership</a></li>
+    <li><a class="icon location">Locate</a></li>
+    <li><a class="icon settings" href="#settings">Settings</a></li>
+	    <li><a class="icon settings" onclick="javascript:location.href='NFC.html'">Developer</a></li>
+  </ul>
+
+
+</div>
+</div>
+
+ <!-- footer --> 
+<div id="navbar">
+<a class="icon home" target="#home">Home</a>
+  <a class="icon tag" target="#catalog">Catalog</a>
+  <a class="icon star" target="#shop">Shopping List</a>
+    <a class="icon settings" target="#member">Membership</a>
+  <a class="icon location" target="#locate">Locate</a>
+</div>
+
+
+</div>
+</body>
+</html>
