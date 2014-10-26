@@ -41,12 +41,10 @@ onDeviceReady: function() {
             // dump the raw json of the message
             // note: real code will need to decode
             // the payload from each record
-			alert("ISF TAG RECOGNIZED !");
-            alert(JSON.stringify(nfc.bytesToHexString(nfcEvent.tag.id)));
-
+			alert("NFC Event Detected !");
+			localStorage("NFC",JSON.stringify(nfc.bytesToHexString(nfcEvent.tag.id)));
             // assuming the first record in the message has 
             // a payload that can be converted to a string.
-            alert(nfc.bytesToString(ndefMessage[0].payload).substring(3));
         },function(){console.log('MIME LISTENER REGISTERED');},function(){alert('failed to register listener');});
 		
 		

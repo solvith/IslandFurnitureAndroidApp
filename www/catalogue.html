@@ -4,7 +4,7 @@
 -->
 
 <head>
-<title>Island Furniture</title>
+<title>Island Furniture App</title>
 <link rel="stylesheet" href="css/font-awesome.min.css">
 <link rel="stylesheet" type="text/css" href="css/af.ui.css" />
 <link rel="stylesheet" type="text/css" href="css/icons.css" />
@@ -12,16 +12,112 @@
 <style type="text/css">
 .cata
 {
-background-image:url('mock_product.jpg');
+
 background-position: center center;
 background-size: 100% auto;
 background-repeat: no-repeat;
 z-index:50;
-width:100%;
-height:100%
+height:100%;
+max-height:500px;
+max-width:500px;
+margin-left:auto;
+margin-right:auto;
 }
 </style>
-<script type="text/javascript">$.ui.useOSThemes=false</script>   
+<script type="text/javascript">
+ip_add=localStorage.getItem("IPADDRESS");
+$.ui.useOSThemes=false;
+if (localStorage.getItem('co_id')==null){
+window.location="countryselect.html";
+}
+$(document).ready(function(){
+requesturl="http://"+ip_add+"rest/cs/prepcatalogue?CO="+localStorage.getItem('co_id');
+$("#catalg").bind("swipeLeft",minusone);
+$("#catalg").bind("swipeRight",plusone);
+
+
+$.get(requesturl,function(data){
+full_data=JSON.parse(data);
+catalogue_data=JSON.parse(data)['full'];
+load_cata();
+
+$("#furniture_cat").empty();
+$("#furniture_cat").append("<li class=\"divider\">Furnitures</li>");
+$("#furniture_cat").append("<li><a href=\"\" onclick=\"location.href='index.html'\">Home</a></li>");
+$("#furniture_cat").append("<li><a href=\"\" onclick=\"location.href='shoppingList.html'\">My Shopping List</a></li>");
+$("#furniture_cat").append("<li><a href='javascript:void'  onclick=\"drill_cat('full')\">Everything ["+full_data['full'].length+"]</a></li>");
+
+for (i=0;i<full_data["category"].length;i++)
+{
+$("#furniture_cat").append("<li><a href='javascript:void()'  onclick=\"drill_cat('"+full_data["category"][i]+"')\">"+replaceAll('_',' ',full_data["category"][i])+" ["+full_data[full_data["category"][i]].length+"]</a></li>");
+
+}
+
+
+});
+
+
+
+});
+
+function replaceAll(find, replace, str) {
+  return str.replace(new RegExp(find, 'g'), replace);
+}
+
+function drill_cat(cat){
+browseID=0;
+
+catalogue_data=full_data[cat];
+
+load_cata();
+}
+browseID=0;
+
+function load_cata(){
+//background-image:url('mock_product.jpg');
+
+var data=catalogue_data[browseID];
+requesturl="http://"+ip_add+"rest/cs/furnitureimage?id="+data[0];
+
+$("#fur_name").html(data[1]);
+$("#fur_text").html(data[2]);
+$("#fur_price").html("$"+data[3]);
+$(".cata").css("background-image","url('"+requesturl+"')");
+
+}
+
+function addtoCart(){
+var data=catalogue_data[browseID];
+requesturl="http://"+ip_add+"rest/cs/additemtoshoplist?cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id')+"&fm_id="+data[0]+"&qty=1";
+$.get(requesturl,function(data){
+$(document.body).popup({title:"Information",message:data});
+
+
+});
+}
+
+
+function plusone()
+{
+if (browseID+1>=catalogue_data.length){
+browseID=0;
+}else{
+browseID=browseID+1;
+}
+load_cata();
+}
+
+function minusone()
+{
+if (browseID-1<=0){
+browseID=catalogue_data['count']-1;
+}else{
+browseID=browseID-1;
+}
+load_cata();
+}
+
+</script>   
 </head>
 <body> 
 
@@ -40,51 +136,47 @@ height:100%
 <div id="content">
  <!-- side nav -->
 
-<nav id="furniture_cat">
- <ul class="list">
-<li  class="divider">Furnitures</li>
-<li >
-<a href="" onclick="location.href='index.html'">
-Home</a></li>
-  <li ><a href="#catalog">BEDROOM</a></li>
-  <li ><a href="#shop">LIVING ROOM</a></li>
-    <li ><a href="#member">KITCHEN</a></li>
-  <li><a href="#locate">STUDY ROAM</a></li>
-  <li><a href="#locate">CHILDREN</a></li>
-  <li ><a href="#locate">DINING ROOM</a></li>
-  <li ><a href="#locate">BATHROOM</a></li>
+<nav >
+ <ul class="list" id="furniture_cat">
+
   </ul>
 </nav>
 
 
 <!-- Catalogue -->
-<div class="panel" data-title="2014 Winter Collection" id="cata">
+<div class="panel" data-title="Catalogue" id="catalg">
 <div>
 <div class="cata">
 &nbsp;
 </div>
 
 
-<div style="z-index:100;position:absolute;bottom:80px;width:100%;text-align:center;">
-Beautiful blue bed made in Japan - Hokkaido
+
+<div id="fur_Stuffs" style="z-index:100;position:absolute;bottom:80px;width:100%;text-align:center;">
+<span id="fur_name" style="font-size:1.6em;font-weight:bold;">
+TITLE
+</span>
 <br/>
-<span style="font-size:1.5em;font-weight:bold">
-SGD $100
-</style>
+<span id="fur_text">
+TEXT
+</span>
+<br/>
+<span id="fur_price" style="font-size:1.5em;font-weight:bold">
+COST
+</span>
 </div>
 
 
-<div style="z-index:100;position:absolute;bottom:0;width:100%">
-  <a class="button green"  style="margin-left:auto;margin-right:auto;display:block;width:150px">
-  <i class="fa fa-shopping-cart"></i>
-  ADD LIST
+<div style="z-index:999;position:absolute;bottom:0;width:100%;text-align:center; padding-left:50px;padding-right:50px;" >
+ <i class="fa fa-chevron-left fa-6" style="float:left;color:#0088d1; font-size:3em" onclick="javascript:minusone()"></i>
+  <a class="button green" id="fur_button"  onclick="javascript:addtoCart()">
+ <i class="fa fa-shopping-cart"></i> 
+ ADD TO LIST
   </a>
+  <i class="fa fa-chevron-right fa-6" style="float:right;color:#0088d1; font-size:3em" onclick="javascript:plusone()"></i>
 </div>
 
-<div style="z-index:100;position:absolute;bottom:0;padding-left:50px;padding-right:50px;width:100%">
-<i class="fa fa-chevron-left fa-6" style="float:left;color:#0088d1; font-size:3em"></i>
-<i class="fa fa-chevron-right fa-6" style="float:right;color:#0088d1; font-size:3em"></i>
-</div>
+
 
 
 </div></div>
@@ -93,7 +185,7 @@ SGD $100
 
  <!-- footer --> 
 <div id="navbar">
-<a class="icon home" onclick="location.href='index.html'">Home</a>
+<a class="icon home" onclick="location.href='index.html'" href="javascript:void">Home</a>
 </div>
 
 

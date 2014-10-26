@@ -17,7 +17,8 @@ module.exports.metadata =
 // TOP OF METADATA
 {
     "com.chariotsolutions.nfc.plugin": "0.6.0",
-    "org.apache.cordova.splashscreen": "0.3.5-dev"
+    "org.apache.cordova.splashscreen": "0.3.5-dev",
+    "org.apache.cordova.geolocation": "0.3.11-dev"
 }
 // BOTTOM OF METADATA
 });

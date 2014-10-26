@@ -1,160 +1,253 @@
 <html>
-<!-- NFC INTENT NOT PERFECT 
+    <!-- NFC INTENT NOT PERFECT 
+    
+    -->
 
--->
+    <head>
+        <title>Island Furniture App</title>
+        <link rel="stylesheet" href="css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="css/af.ui.css" />
+        <link rel="stylesheet" type="text/css" href="css/icons.css" />
+		<script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" charset="utf-8" src="ui/appframework.ui.min.js"></script>
+		<script type="text/javascript" src="js/NFCINDEX.js"></script>
 
-<head>
-<title>Island Furniture</title>
-<link rel="stylesheet" href="css/font-awesome.min.css">
-<link rel="stylesheet" type="text/css" href="css/af.ui.css" />
-<link rel="stylesheet" type="text/css" href="css/icons.css" />
-<script type="text/javascript" charset="utf-8" src="ui/appframework.ui.min.js"></script> 
-<style type="text/css">
-.cata
-{
-background-image:url('mock_product.jpg');
-background-position: center center;
-background-size: 100% auto;
-background-repeat: no-repeat;
-z-index:50;
-width:100%;
-height:100%
-}
-</style>
-<script type="text/javascript">$.ui.useOSThemes=false</script>   
-</head>
-<body> 
+        <script type="text/javascript">
 
+            $.ui.useOSThemes = false;
 
+            if (localStorage.getItem('co_id') == null && window.location.hash != '#settings') {
+                window.location = 'countryselect.html';
+            }else{
+			if (localStorage.getItem('co_id')==null){
+			window.location="countryselect.html";
+			}
+			}
 
-<div id="afui">
-
-<div id="header">
-<!-- header -->
-<header>
-<a id='menubadge' onclick='af.ui.toggleSideMenu()' class='menuButton'></a>
-</header>
-</div>
-
-<!-- content-->
-<div id="content">
- <!-- side nav -->
-<nav>
- <ul class="list">
-<li  class="divider">By Category</li>
-
-  <li ><a href=""  onclick="location.href='catalogue.html'">Catalog</a></li>
-  <li ><a href="#shop">Shopping List</a></li>
-    <li ><a href="#member">Membership</a></li>
-  <li ><a href="#locate">Locate</a></li>
-  </ul>
-</nav>
+        </script>   
+    </head>
+    <body> 
 
 
 
-<!-- Catalogue -->
-<div class="panel" data-title="2014 Winter Collection" id="cata">
-<div>
-<div class="cata">
-&nbsp;
-</div>
+        <div id="afui">
+
+            <div id="header">
+                <!-- header -->
+                <header>
+                    <a id='menubadge' onclick='af.ui.toggleSideMenu()' class='menuButton'></a>
+                </header>
+            </div>
+
+            <!-- content-->
+            <div id="content">
+                <!-- side nav -->
+                <nav>
+                    <ul class="list">
+                        <li  class="divider">By Category</li>
+
+                        <li ><a href=""  onclick="location.href = 'catalogue.html'">Catalog</a></li>
+                        <li ><a href="" onclick="location.href='shoppingList.html'">Shopping List</a></li>
+                        <li ><a href="#login">Membership</a></li>
+                        <li ><a href="#locate" onclick="javascript:localStorage.setItem('predefined_CO',localStorage.getItem('co_code'));window.location='countryselect.html'">Locate</a></li>
+                    </ul>
+                </nav>
 
 
-<div style="z-index:100;position:absolute;bottom:100px;width:100%;text-align:center;">
-A Beautiful blue Bed made in Japan - Hokkaido
-<br/>
-<br/>
-<span style="font-size:1.5em;font-weight:bold">
-SGD $100
-</style>
-</div>
+
+                <!-- Login -->
+                <div class="panel" data-title="Login" id="login">
+                    <br/>
+
+                    <script type="text/javascript">
+                        function login() {
+                            localStorage.setItem("email", $("#email").val());
+                            localStorage.setItem("pass", $("#pass").val());
+
+                    //remember to change to ws
+                            requesturl = "http://" + ip_add + "rest/auth/memberlogin?email=" + $("#email").val() + "&password=" + $("#pass").val();
+                            $.get(requesturl, function(data) {
+                                if (data == 'FAIL') {
+                                    $("#loginmsg").html("Login Failed !");
+                                } else {
+                                    localStorage.setItem("cust_id", data);
+                                    window.location = 'index.html?logout#login';
+                                }
+                            });
+                        }
+
+                        function logout() {
+                            localStorage.setItem("pass", "");
+                            localStorage.setItem("cust_id", "");
+                            localStorage.setItem("point", "");
+                            localStorage.setItem("tier", "");
+                            localStorage.setItem("name", "");
+                            window.location = 'index.html?login#login';
+                        }
 
 
-<div style="z-index:100;position:absolute;bottom:0;width:100%">
-  <a class="button green"  style="margin-left:auto;margin-right:auto;display:block;width:150px">
-  <i class="fa fa-shopping-cart"></i>
-  ADD LIST
-  </a>
-</div>
+                        $(document).ready(function() {
+                            $("#email").val(localStorage.getItem("email"));
+                            $("#pass").val(localStorage.getItem("pass"));
 
-<div style="z-index:100;position:absolute;bottom:0;padding-left:50px;padding-right:50px;width:100%">
-<i class="fa fa-chevron-left fa-6" style="float:left;color:#0088d1; font-size:3em"></i>
-<i class="fa fa-chevron-right fa-6" style="float:right;color:#0088d1; font-size:3em"></i>
-</div>
+                    //Refresh Points
+                            if (localStorage.getItem("cust_id") != null && localStorage.getItem("cust_id") != "") {
+                                requesturl = "http://" + ip_add + "rest/cs/memberlogin?custid=" + localStorage.getItem("cust_id");
+                                console.log(requesturl);
+                                $.get(requesturl, function(data) {
+                                    dataj = JSON.parse(data);
+                                    localStorage.setItem("point", dataj["point"]);
+                                    localStorage.setItem("tier", dataj["tier"]);
+                                    localStorage.setItem("name", dataj["name"]);
+                                    updatemember();
 
+                                });
 
-</div></div>
+                                updatemember();
 
+                                $("#logout").show();
+                                $("#login_screen").hide();
 
-<!-- Login -->
-<div class="panel" data-title="Login" id="login">
-<br/>
-Login Now for exciting services that islandfurniture app can offer !
-<br/>
+                            } else {
+                                $("#logout").hide();
+                                $("#login_screen").show();
+                            }
 
-    <form>
-  <label for="frm_test1">Username</label><input id="frm_test1" type="text" placeholder="UserName">
-  <label for="Password">Password</label><input id="frm_test1" type="password" placeholder="Password">
-  
-  <div class="button-grouped flex">
-  <a class="button orange">Register</a>
-  <a class="button green">Login Now</a>
-  <a class="button red">Forget Password</a>
-  </div>
-	</form>
+                        });
 
-</div>
+                        function updatemember() {
+                            if (localStorage.getItem("name") != "" && localStorage.getItem("name") != null) {
+                                $("#member_name").html(localStorage.getItem("name"));
+                                $("#Tier").html(localStorage.getItem("tier"));
+                                $("#cpoint").html(localStorage.getItem("point"));
+                            }
+                        }
+                    </script>
+                    <div id="logout" style="display:hidden">
+                        <ul class="list">
+                            <li><i class="fa fa-users"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;font-size:1.2em">Name:</span> <span id="member_name"></span></li>
+                            <li><i class="fa fa-key"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;font-size:1.2em">Membership Tier:</span> <span id="Tier"></span></li>
+                            <li><i class="fa fa-money"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;font-size:1.2em">Current Points:</span> <span id="cpoint"></span></li>
+                            <br/>
+                            <div style="text-align:center">
+                                <a class="button red" onclick="javascript:logout();" style="width:150px;">Logout</a>
+                            </div>
+                        </ul>
+                        <form id="">
+                        </form>
+                    </div>
 
+                    <form id="login_screen" style="display:hidden;">
+                        Login Now for exciting services that islandfurniture app can offer !
+                        <br/>
+                        <label for="email">Email</label><input id="email" type="text" placeholder="UserName">
+                        <label for="pass">Password</label><input id="pass" type="password" placeholder="Password">
+                        <div id="loginmsg" style="color:red;text-align:center">
+                        </div>
+                        <div class="button-grouped flex">
+                            <a class="button orange">Register</a>
+                            <a class="button green" onclick="javascript:login();">Login Now</a>
+                            <a class="button red">Forget Password</a>
+                        </div>
+                    </form>
 
-<!-- Settings -->
-<div class="panel" data-title="Members" id="settings">
-    <form>
-	<br/>
-	Server IP Address
-	<br/>
-      <input id="IP_ADD" type="text" placeholder="SERVER IP ADDRESS" value="172.23.10.73" onchange="javascript:update_ip(this.value)">
-	  <script type="text/javascript">
-	  if (localStorage.getItem("IPADDRESS")!=null)
-	  {
-	  $("#IP_ADD").val(localStorage.getItem("IPADDRESS"));
-	  }
-	  
-		function update_ip(value){
-		localStorage.setItem("IPADDRESS",value);
-		}
-	  </script>
-	  
-    <br/>
-	</form>
-
-</div>
-
-<!-- side banner-->
-<div class="panel" data-title="Island Furniture" selected="true" id="home">
-  <ul class="list">
-    <li><a class="icon heart">Latest Products</a></li>
-    <li><a class="icon tag"  onclick="location.href='catalogue.html'">Product Catalog</a></li>
-	    <li><a class="icon star">Shopping List</a></li>
-    <li><a class="icon key" href="#login">Membership</a></li>
-    <li><a class="icon location">Locate</a></li>
-    <li><a class="icon settings" href="#settings">Settings</a></li>
-	    <li><a class="icon settings" onclick="javascript:location.href='NFC.html'">Developer</a></li>
-  </ul>
+                </div>
 
 
-</div>
-</div>
+                <!-- Settings -->
+                <div class="panel" data-title="Settings" id="settings" >
+                    <form>
+                        <br/>
 
- <!-- footer --> 
-<div id="navbar">
-<a class="icon home" target="#home">Home</a>
-  <a class="icon tag" target="#catalog">Catalog</a>
-  <a class="icon star" target="#shop">Shopping List</a>
-    <a class="icon settings" target="#member">Membership</a>
-  <a class="icon location" target="#locate">Locate</a>
-</div>
+                        <br/>
+                        <ul class='list'>
+                            <li>
+                                <label for="IP_ADD">IP Address: </label>
+                                <input style="max-width:400px;" id="IP_ADD" type="text" placeholder="SERVER IP ADDRESS" value="192.168.2.37:8080/IslandFurniture-webservices-war/" onchange="javascript:update_ip(this.value)">
+                            </li>
+                            <li>
+                                <label for="">Preferred Store: </label>
+                                <script>
+                                    $(document).ready(function() {
+                                        $("#pref_store").html("&nbsp;" + localStorage.getItem('store'));
+                                    })
+                                </script>
+                                <div id="pref_store" style="display:inline;width:150px">
+                                </div>
+
+                                <a href="" onclick="window.location = 'countryselect.html'" style="color:green">(Change)</a>
+                            </li>
+                        </ul>
 
 
-</div>
-</body>
+                        <br/>
+                        <div style="text-align:center">
+                            <a class="button green" onclick="javascript:update_ip($('#IP_ADD').val());
+                    window.location = 'index.html';">Save Settings</a>
+                        </div>
+
+                        <script type="text/javascript">
+                            if (localStorage.getItem("IPADDRESS") != null)
+                            {
+                                $("#IP_ADD").val(ip_add);
+                            }
+
+                            function update_ip(value) {
+                                localStorage.setItem("IPADDRESS", value);
+                            }
+
+                            $(document).ready(function() {
+                                ip_add = localStorage.getItem("IPADDRESS");
+
+                                if (ip_add != "") {
+                                    $("#IP_ADD").val(ip_add);
+                                }
+                            });
+
+                            var ip_add = "";
+                            function get_ip() {
+                                ip_add = localStorage.getItem("IPADDRESS");
+
+                            }
+
+                            get_ip();
+
+                        </script>
+
+                        <br/>
+                    </form>
+
+                </div>
+
+                <!-- side banner-->
+                <div class="panel" data-title="Island Furniture" selected="true" id="home">
+                    <ul class="list">
+                        <li><a class="icon heart" href=""  onclick="location.href = 'catalogue.html'">Product Catalog</a></li>
+						
+                        <li><a class="icon star" href="" onclick="location.href='shoppingList.html'">Shopping List</a></li>
+                        <li><a class="icon key" href="#login">Membership</a></li>
+                        <li><a class="icon location" href="javascript:void" onclick="localStorage.setItem('predefined_CO',localStorage.getItem('co_code'));window.location='countryselect.html'">Locate</a></li>
+                        <li><a class="icon settings" href="#settings">Settings</a></li>
+                        <li><a class="icon settings" href="" onclick="javascript:location.href = 'NFC.html'">Developer</a></li>
+                    </ul>
+
+
+                </div>
+            </div>
+
+            <!-- footer --> 
+            <div id="navbar">
+                <a class="icon home" href="#home">Home</a>
+                <a class="icon tag" href="javascript:void" onclick="window.location = 'catalogue.html'">Catalog</a>
+                <a class="icon star" href="javascript:void" onclick="window.location = 'shoppingList.html'">Shopping List</a>
+                <a class="icon settings" href="#login">Membership</a>
+                <a class="icon location" href="javascript:void" onclick="localStorage.setItem('predefined_CO',localStorage.getItem('co_code'));window.location='countryselect.html'">Locate</a>
+            </div>
+
+
+        </div>
+    </body>
+	        <script type="text/javascript">
+            app.initialize();
+        </script>
 </html>

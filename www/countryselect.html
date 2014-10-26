@@ -1,0 +1,213 @@
+<html>
+    <!-- NFC INTENT NOT PERFECT 
+    
+    -->
+
+    <head>
+        <title>Island Furniture App</title>
+        <link rel="stylesheet" href="css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="css/af.ui.css" />
+        <link rel="stylesheet" type="text/css" href="css/icons.css" />
+        <script type="text/javascript" charset="utf-8" src="ui/appframework.ui.min.js"></script> 
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/gps.js"></script> 
+        <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+        <link href="http://code.google.com/apis/maps/documentation/javascript/examples/default.css" rel="stylesheet" type="text/css" />
+        <style type="text/css">
+            .label{
+                width:150px;
+            }
+        </style>
+
+        <script type="text/javascript">$.ui.useOSThemes = false;
+            ip_add = localStorage.getItem("IPADDRESS");
+            if (ip_add == null) {
+                location.href = "index.html#settings";
+            }
+
+
+
+            function onSuccess(position) {
+                window.position = position;
+            };
+
+            function onError(error) {
+                alert('code: ' + error.code + '\n' +
+                        'message: ' + error.message + '\n');
+            }
+
+
+
+
+        </script>   
+    </head>
+    <body> 
+
+
+
+        <div id="afui">
+
+            <div id="header">
+                <!-- header -->
+                <header>
+                </header>
+            </div>
+
+            <!-- content-->
+            <div id="content">
+                <!-- side nav -->
+
+
+
+
+
+                <script type="text/javascript">
+                    readyf=(function() {
+        //Hardcode fake
+		if (typeof position==='undefined' || position==""){
+            position = {coords: {latitude: 1.2800945000000001, longitude: 103.8509491}};
+}
+
+
+
+
+                        requesturl = "http://" + ip_add + "rest/cs/allCO";
+                        $.get(requesturl, function(data) {
+                            dataj = JSON.parse(data);
+                            $("#countrylist").empty();
+                            for (i = 0; i < dataj["Country"].length; i++)
+                            {
+                                $("#countrylist").append("<li onclick=\"javascript:drillstore('" + dataj["Country"][i][1] + "')\"><a href='#store'>"
+                                        + "<img src='http://api.hostip.info/images/flags/" + dataj["Country"][i][1].toLowerCase() + ".gif' style='width:32px'/>&nbsp;&nbsp;"
+                                        + dataj["Country"][i][0] + "</a></li>");
+
+                            }
+
+                        });
+						
+				if(localStorage.getItem("predefined_CO")!=null){
+				drillstore(localStorage.getItem("predefined_CO"));
+				localStorage.removeItem("predefined_CO");
+				$.ui.loadContent("#store",true,true,"slide");
+				window.location="countryselect.html#store"
+				}
+                    });
+
+                    function drillstore(country) {
+									localStorage.setItem('co_code', country);
+		
+                        $("#selected_country").attr("src", "http://api.hostip.info/images/flags/" + country.toLowerCase() + ".gif");
+                        location.href = "#"
+                        requesturl = "http://" + ip_add + "rest/cs/allstores?CO_CODE=" + country;
+                        $.get(requesturl, function(data) {
+                            dataj = JSON.parse(data);
+                            console.log(dataj);
+                            var mapOptions = {
+                                zoom: 12,
+                                center: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
+                                mapTypeId: google.maps.MapTypeId.ROADMAP
+                            }
+                            map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+                            cpos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                            var marker = new google.maps.Marker({
+                                position: cpos,
+                                map: map,
+                                title: "YOU"
+                            });
+
+                            var infowindow = new google.maps.InfoWindow({
+                                content: "<div style='width:50px'>You</div>",
+                                maxWidth: 300
+                            });
+                            infowindow.open(map, marker);
+
+                            $("#stores").empty();
+                            for (i = 0; i < dataj["Stores"].length; i++)
+                            {
+
+                                store_pos = new LatLon(dataj["Stores"][i][1], dataj["Stores"][i][2]);
+                                my_pos = new LatLon(position.coords.latitude, position.coords.longitude);
+                                var dist = Math.floor(my_pos.distanceTo(store_pos));
+
+
+
+
+                                var latitudeAndLongitudeOne = new google.maps.LatLng(dataj["Stores"][i][1], dataj["Stores"][i][2]);
+
+                                var marker = new google.maps.Marker({
+                                    position: latitudeAndLongitudeOne,
+                                    map: map,
+                                    title: dataj["Stores"][i][0]
+                                });
+
+                                var infowindow = new google.maps.InfoWindow({
+                                    content: "<div class='label' onclick=\"select_countryoffice(" + dataj["Stores"][i][6] + ",'" + dataj["Stores"][i][5] + "','" + dataj["Stores"][i][0] + "','" + dataj["Stores"][i][4] + "')\"><b>" + dataj["Stores"][i][0] + "</b><br/>" + dataj["Stores"][i][3] + "</div>",
+                                    maxWidth: 300
+                                });
+                                infowindow.open(map, marker);
+
+
+                                $("#stores").append("<li><a href='' onclick=\"select_countryoffice(" + dataj["Stores"][i][6] + ",'" + dataj["Stores"][i][5] + "','" + dataj["Stores"][i][0] + "','" + dataj["Stores"][i][4] + "')\"><i class='fa fa-home'></i>" + dataj["Stores"][i][0] + " " + dist + "KM </a></li>");
+
+
+                            }
+
+                        });
+
+                    }
+
+                    function select_countryoffice(store_id, co_name, store, co_id) {
+                        window.location = 'index.html';
+                        localStorage.setItem('store_id', store_id);
+                        localStorage.setItem('store', store);
+                        localStorage.setItem('co_id', co_id);
+                        localStorage.setItem('co_name', co_name);
+						
+
+                    }
+
+                </script>
+                <div class="panel" data-title="Select Country" id="cn">
+                    <ul class="list" id="countrylist">
+                    </ul>
+                </div>
+
+            <div class="panel" data-title="Select Stores" id="store">
+                <div style="text-align:center">
+                    <img src="" alt="country" id="selected_country" style="max-height:15%"/><br/>
+                </div>
+                <ul class="list" id="stores" style="max-height:30%;overflow:auto;">
+                </ul>
+
+                <div id="map_canvas" style="width:100%;height:55%">
+                </div>
+
+            </div>
+
+
+            </div>
+
+
+            <!-- footer --> 
+            <div id="navbar">
+                <a class="icon settings" onclick="window.location = 'index.html#settings'">Settings</a>
+            </div>
+        </div>
+		<script type="text/javascript">
+		            function onDeviceReady() {
+
+        //setup google map
+
+
+                navigator.geolocation.getCurrentPosition(onSuccess, onError);
+                navigator.geolocation.watchPosition(onSuccess, onError, {timeout: 30000, enableHighAccuracy: true});
+				readyf();
+
+
+            }
+
+            document.addEventListener("deviceready", onDeviceReady, false);
+		</script>
+
+    </body>
+</html>
