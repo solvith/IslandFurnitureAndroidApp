@@ -29,11 +29,13 @@
 
             function onSuccess(position) {
                 window.position = position;
+				readyf();
             };
 
             function onError(error) {
                 alert('code: ' + error.code + '\n' +
                         'message: ' + error.message + '\n');
+						readyf();
             }
 
 
@@ -201,7 +203,6 @@
 
                 navigator.geolocation.getCurrentPosition(onSuccess, onError);
                 navigator.geolocation.watchPosition(onSuccess, onError, {timeout: 30000, enableHighAccuracy: true});
-				readyf();
 
 
             }
