@@ -63,7 +63,12 @@
 			for (i=0;i<dataj['details'].length;i++)
 			{
 			newrow=$("#template").clone().css('display','').attr('id','row_'+i);
-			newrow.find('label.name').html(dataj['details'][i]['fm']);
+			if (dataj['details'][i]['PromoTxt']==""){
+			newrow.find('label.name').html(dataj['details'][i]['fm'] +"--"+dataj['details'][i]['uprice']);
+			}else{
+			newrow.find('label.name').html(dataj['details'][i]['fm'] +"--<span style='text-decoration: line-through;'>"+dataj['details'][i]['oprice']+"</span>&nbsp;Promo:"+dataj['details'][i]['uprice']);
+			}
+			
 			newrow.find('label.subtotal').html('Price: $'+dataj['details'][i]['price']);
 			newrow.find('input').val(dataj['details'][i]['qty']);
 			newrow.find('.green').bind('click',
