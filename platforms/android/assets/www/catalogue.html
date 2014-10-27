@@ -31,7 +31,7 @@ if (localStorage.getItem('co_id')==null){
 window.location="countryselect.html";
 }
 $(document).ready(function(){
-requesturl="http://"+ip_add+"rest/cs/prepcatalogue?CO="+localStorage.getItem('co_id');
+requesturl=ip_add+"rest/cs/prepcatalogue?CO="+localStorage.getItem('co_id');
 $("#catalg").bind("swipeLeft",minusone);
 $("#catalg").bind("swipeRight",plusone);
 
@@ -77,7 +77,7 @@ function load_cata(){
 //background-image:url('mock_product.jpg');
 
 var data=catalogue_data[browseID];
-requesturl="http://"+ip_add+"rest/cs/furnitureimage?id="+data[0];
+requesturl=ip_add+"rest/cs/furnitureimage?id="+data[0];
 
 $("#fur_name").html(data[1]);
 $("#fur_text").html(data[2]);
@@ -88,7 +88,7 @@ $(".cata").css("background-image","url('"+requesturl+"')");
 
 function addtoCart(){
 var data=catalogue_data[browseID];
-requesturl="http://"+ip_add+"rest/cs/additemtoshoplist?cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id')+"&fm_id="+data[0]+"&qty=1";
+requesturl=ip_add+"rest/cs/additemtoshoplist?cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id')+"&fm_id="+data[0]+"&qty=1";
 $.get(requesturl,function(data){
 $(document.body).popup({title:"Information",message:data});
 

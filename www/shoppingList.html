@@ -38,11 +38,11 @@
 			 
 			
 			$(document).ready(function(){
-			requesturl="http://"+ip_add+"/rest/cs/shoplist?cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id');
+			requesturl=ip_add+"rest/cs/shoplist?cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id');
 			
 			if (localStorage.getItem("NFC")!=null && localStorage.getItem("NFC")!="")
 			{
-			requesturlnfc="http://"+ip_add+"/rest/cs/additembynfc?cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id')+"&NFC_TAG="+localStorage.getItem("NFC");
+			requesturlnfc=ip_add+"rest/cs/additembynfc?cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id')+"&NFC_TAG="+localStorage.getItem("NFC");
 			localStorage.removeItem("NFC");
 			$.get(requesturlnfc,function(datan){
 			$(document.body).popup({title:"Information",message:datan, doneCallback: function () {
@@ -64,19 +64,19 @@
 			{
 			newrow=$("#template").clone().css('display','').attr('id','row_'+i);
 			if (dataj['details'][i]['PromoTxt']==""){
-			newrow.find('label.name').html(dataj['details'][i]['fm'] +"--"+dataj['details'][i]['uprice']);
+			newrow.find('label.name').html(dataj['details'][i]['fm'] +" @ $"+dataj['details'][i]['uprice']);
 			}else{
-			newrow.find('label.name').html(dataj['details'][i]['fm'] +"--<span style='text-decoration: line-through;'>"+dataj['details'][i]['oprice']+"</span>&nbsp;Promo:"+dataj['details'][i]['uprice']);
+			newrow.find('label.name').html(dataj['details'][i]['fm'] +"@<span style='text-decoration: line-through;'>"+dataj['details'][i]['oprice']+"</span><br/>Promo:"+dataj['details'][i]['uprice']);
 			}
 			
-			newrow.find('label.subtotal').html('Price: $'+dataj['details'][i]['price']);
+			newrow.find('label.subtotal').html('Sub Total: $'+dataj['details'][i]['price']);
 			newrow.find('input').val(dataj['details'][i]['qty']);
 			newrow.find('.green').bind('click',
 			
 			
 			(function(ii,oqty,fid){return function(){
 			val=$("#row_"+ii+" input").val()-oqty;
-			requesturl="http://"+ip_add+"rest/cs/additemtoshoplist?cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id')+"&fm_id="+fid+"&qty="+val;
+			requesturl=ip_add+"rest/cs/additemtoshoplist?cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id')+"&fm_id="+fid+"&qty="+val;
 		$(document.body).popup({title:"Updating",message:"Please Wait"});
 		
 		$.get(requesturl,function(data){
@@ -91,7 +91,7 @@
 			
 			
 			(function(sldid){return function(){
-			requesturl="http://"+ip_add+"rest/cs/deleteitemfromshoplist?detailID="+sldid;
+			requesturl=ip_add+"rest/cs/deleteitemfromshoplist?detailID="+sldid;
 		$(document.body).popup({title:"Updating",message:"Please Wait"});
 		
 		$.get(requesturl,function(data){
@@ -141,16 +141,27 @@
 					<li class='divider'>
 										<script>document.write("Shopping List@"+localStorage.getItem('store'));</script>
 										</li>
-					<li id="template" style="display:none; text-align:center;height:150px">
-					<label class='name' style='font-size:1.2em'>Item Name</label>
-					<input id="" type="text" style="max-width:100px" placeholder="Qty">
-					<br/>
-			<label class='subtotal' style='font-size:1.2em;'></label>
-					
-<div class="button-grouped">
+					<li id="template" style="display:none; text-align:center;height:200px">
+					<table style="width:100%">
+					<tr>
+					<td><label class='name' style='font-size:0.8em;font-weight:bold;width:100px'>Item Name</label></td>
+					<td><input id="" type="text" placeholder="Qty"></td>
+					</tr>
+					<tr>
+					<td>
+					<label class='subtotal' style='font-size:0.8em;width:100px'></label>
+					</td>
+					<td>
+					<div class="button-grouped">
 					  <a class="button green" class='green'  onclick="">Modify</a>
 					  <a class="button red" class='red'   onclick="">Remove</a>
 					  </div>
+					  
+					</td>
+					</tr>
+					</table>
+
+
 					  </li>
 					  
 

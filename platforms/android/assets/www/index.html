@@ -62,7 +62,7 @@
                             localStorage.setItem("pass", $("#pass").val());
 
                     //remember to change to ws
-                            requesturl = "http://" + ip_add + "rest/auth/memberlogin?email=" + $("#email").val() + "&password=" + $("#pass").val();
+                            requesturl = ip_add+ "rest/auth/memberlogin?email=" + $("#email").val() + "&password=" + $("#pass").val();
                             $.get(requesturl, function(data) {
                                 if (data == 'FAIL') {
                                     $("#loginmsg").html("Login Failed !");
@@ -74,7 +74,7 @@
                         }
 
                         function logout() {
-                            localStorage.setItem("pass", "");
+                            localStorage.setItem("pass", "");	
                             localStorage.setItem("cust_id", "");
                             localStorage.setItem("point", "");
                             localStorage.setItem("tier", "");
@@ -89,7 +89,7 @@
 
                     //Refresh Points
                             if (localStorage.getItem("cust_id") != null && localStorage.getItem("cust_id") != "") {
-                                requesturl = "http://" + ip_add + "rest/cs/memberlogin?custid=" + localStorage.getItem("cust_id");
+                                requesturl = ip_add+ "rest/cs/memberlogin?custid=" + localStorage.getItem("cust_id");
                                 console.log(requesturl);
                                 $.get(requesturl, function(data) {
                                     dataj = JSON.parse(data);
@@ -160,7 +160,7 @@
                         <ul class='list'>
                             <li>
                                 <label for="IP_ADD">IP Address: </label>
-                                <input style="max-width:400px;" id="IP_ADD" type="text" placeholder="SERVER IP ADDRESS" value="192.168.2.37:8080/IslandFurniture-webservices-war/" onchange="javascript:update_ip(this.value)">
+                                <input style="max-width:400px;" id="IP_ADD" type="text" placeholder="SERVER IP ADDRESS" value="https://172.28.191.103/ws/" onchange="javascript:update_ip(this.value)">
                             </li>
                             <li>
                                 <label for="">Preferred Store: </label>

@@ -19,7 +19,12 @@
             }
         </style>
 
-        <script type="text/javascript">$.ui.useOSThemes = false;
+        <script type="text/javascript">
+		
+		$.ui.useOSThemes = false;
+
+		
+		
             ip_add = localStorage.getItem("IPADDRESS");
             if (ip_add == null) {
                 location.href = "index.html#settings";
@@ -29,12 +34,14 @@
 
             function onSuccess(position) {
                 window.position = position;
+				clearTimeout(timerx);
 				readyf();
             };
 
             function onError(error) {
                 alert('code: ' + error.code + '\n' +
                         'message: ' + error.message + '\n');
+						clearTimeout(timerx);
 						readyf();
             }
 
@@ -73,7 +80,7 @@
 
 
 
-                        requesturl = "http://" + ip_add + "rest/cs/allCO";
+                        requesturl = ip_add + "rest/cs/allCO";
                         $.get(requesturl, function(data) {
                             dataj = JSON.parse(data);
                             $("#countrylist").empty();
@@ -100,7 +107,7 @@
 		
                         $("#selected_country").attr("src", "http://api.hostip.info/images/flags/" + country.toLowerCase() + ".gif");
                         location.href = "#"
-                        requesturl = "http://" + ip_add + "rest/cs/allstores?CO_CODE=" + country;
+                        requesturl = ip_add + "rest/cs/allstores?CO_CODE=" + country;
                         $.get(requesturl, function(data) {
                             dataj = JSON.parse(data);
                             console.log(dataj);
@@ -202,12 +209,13 @@
 
 
                 navigator.geolocation.getCurrentPosition(onSuccess, onError);
-                navigator.geolocation.watchPosition(onSuccess, onError, {timeout: 30000, enableHighAccuracy: true});
+                navigator.geolocation.watchPosition(onSuccess, onError, {timeout: 10000, enableHighAccuracy: false});
 
 
             }
 
             document.addEventListener("deviceready", onDeviceReady, false);
+					timerx=window.setTimeout(readyf,8000);
 		</script>
 
     </body>
