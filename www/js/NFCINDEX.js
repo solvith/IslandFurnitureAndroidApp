@@ -41,7 +41,7 @@ onDeviceReady: function() {
             // dump the raw json of the message
             // note: real code will need to decode
             // the payload from each record
-			alert("NFC Tapping Detected !");
+			alert("Welcome to Island Furniture \n NFC Tapping Detected !");
 			localStorage.setItem("NFC",nfc.bytesToHexString(nfcEvent.tag.id));
 			window.location='shoppingList.html';
             // assuming the first record in the message has 
@@ -64,7 +64,7 @@ onDeviceReady: function() {
 				}
 				}
 								if (mimetype=="text/isf"){
-								alert("NFC Tapping Detected !");
+								alert("NFC: Yes Sir/Mdm ! Adding this right away !");
 											localStorage.setItem("NFC",nfc.bytesToHexString(nfcEvent.tag.id));
 											window.location='shoppingList.html';
 
