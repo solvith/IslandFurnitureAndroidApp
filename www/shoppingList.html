@@ -36,13 +36,18 @@
 			 window.location='countryselect.html';
 			 }
 			 
+			 if (localStorage.getItem("default_list")==null){
+			 localStorage.setItem("default_list","New App Shopping List");
+			 }
+			 
+			 
 			
 			$(document).ready(function(){
-			requesturl=ip_add+"rest/cs/shoplist?cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id');
+			requesturl=ip_add+"rest/cs/shoplist?sl_name="+localStorage.getItem("default_list")+"&cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id');
 			
 			if (localStorage.getItem("NFC")!=null && localStorage.getItem("NFC")!="")
 			{
-			requesturlnfc=ip_add+"rest/cs/additembynfc?cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id')+"&NFC_TAG="+localStorage.getItem("NFC");
+			requesturlnfc=ip_add+"rest/cs/additembynfc?sl_name="+localStorage.getItem("default_list")+"&cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id')+"&NFC_TAG="+localStorage.getItem("NFC");
 			localStorage.removeItem("NFC");
 			$.get(requesturlnfc,function(datan){
 			$(document.body).popup({title:"Information",message:datan, doneCallback: function () {
@@ -51,6 +56,9 @@
 			
 			});
 			}
+			
+			
+			
 			
 			$.get(requesturl,function(data){
 			dataj=JSON.parse(data);
@@ -76,7 +84,7 @@
 			
 			(function(ii,oqty,fid){return function(){
 			val=$("#row_"+ii+" input").val()-oqty;
-			requesturl=ip_add+"rest/cs/additemtoshoplist?cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id')+"&fm_id="+fid+"&qty="+val;
+			requesturl=ip_add+"rest/cs/additemtoshoplist?sl_name="+localStorage.getItem("default_list")+"&cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id')+"&fm_id="+fid+"&qty="+val;
 		$(document.body).popup({title:"Updating",message:"Please Wait"});
 		
 		$.get(requesturl,function(data){
@@ -116,7 +124,74 @@
 
 			})
 
+			
+			
+			requesturl=ip_add+"rest/cs/getShoppingList?cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id');
+			
+			//For list of shopping List
+			$.get(requesturl,function(data){
+			//template_2
+			dataj=JSON.parse(data);
+			for (i=0;i<dataj["ShoppingLists"].length;i++){
+
+			
+						newrow=$("#template_2").clone().css('display','').attr('id','list_'+dataj["ShoppingLists"][i]["ID"]);
+						
+
+						
+						newrow.find(".list_name").html(dataj["ShoppingLists"][i]["name"]);
+						
+												if (dataj["ShoppingLists"][i]["name"]==localStorage.getItem("default_list")){
+						newrow.find(".green").remove();
+						}else{
+												newrow.find(".green").bind("click",(function(name){return function(){
+									 localStorage.setItem("default_list",name);
+									 alert("Default List Changed !");
+									 window.location="shoppingList.html";
+						};})(dataj["ShoppingLists"][i]["name"]));
+						
+						
+
+						
+						}
+						
+						newrow.find(".red").bind("click",(function(id){
+						return(function(){
+						removeSL(id);
+						
+						});
+						})(dataj["ShoppingLists"][i]["ID"]));
+
+						newrow.appendTo("#alllist");
+									console.log("Creating Row for :"+dataj["ShoppingLists"][i]["ID"]);
+						
+			
+			}
+			
+			});
+			
 			})
+			
+			
+			//Code Sniplet
+			
+			function removeSL(sldid){
+		requesturl=ip_add+"rest/cs/deleteshoplist?sID="+sldid;
+		$.get(requesturl,function(data){
+		alert("Success !");
+		location.reload()
+		});
+			}
+			
+			function createList(){
+			
+			localStorage.setItem("default_list",$("#new_list_name").val());
+			alert('List Created');
+			window.location="shoppingList.html?new_list="+$("#new_list_name").val()+"#slist_div";
+			//new_list_name
+			
+			}
+			
 			
 			
         </script>   
@@ -135,11 +210,13 @@
 
             <!-- content-->
             <div id="content">
-                <!-- side nav -->
+			
+<!-- into shopping List-->
                 <div class="panel" data-title="Shopping List" id="slist_div">
                     <ul class="list" id="slist">
 					<li class='divider'>
-										<script>document.write("Shopping List@"+localStorage.getItem('store'));</script>
+					
+										<script>document.write(localStorage.getItem("default_list")+" @ "+localStorage.getItem('store'));</script>
 										</li>
 					<li id="template" style="display:none; text-align:center;height:200px">
 					<table style="width:100%">
@@ -152,11 +229,12 @@
 					<label class='subtotal' style='font-size:0.8em;width:100px'></label>
 					</td>
 					<td>
+					<form>
 					<div class="button-grouped">
-					  <a class="button green" class='green'  onclick="">Modify</a>
-					  <a class="button red" class='red'   onclick="">Remove</a>
+					  <a class="button green">Modify</a>
+					  <a class="button red">Remove</a>
 					  </div>
-					  
+					  </form>
 					</td>
 					</tr>
 					</table>
@@ -168,15 +246,62 @@
 					  
                     </ul>
                 </div>
-            </div>
+				
+				<!-- shopping List Change-->
+            
+			<div class="panel" data-title="Change Shopping List" id="list_all">
+			                    <ul class="list" id="alllist">
+					<li class='divider'>
+					Your Shopping List(s) @
+										<script>document.write("Shopping List@"+localStorage.getItem('store'));</script>
+										</li>
+										<li id="template_2" style=" text-align:center;margin-top:5px;display:none;">
+										<span class="list_name">ABC list</span>
+										<a class="button green" style="display:inline;margin-left:10px;"  onclick="">Set As Default</a>
+										<a class="button red" style="display:inline;margin-left:10px;"  onclick="">Remove</a>
+										</li>
+										</ul>
+			</div>
+			
+							<!-- new List-->
+            
+			<div class="panel" data-title="Change Shopping List" id="new_list" style="text-align:center">
+			                    <div class="formGroupHead">
+					New List @
+										<script>document.write("Shopping List@"+localStorage.getItem('store'));</script>
+										</div>
+										<form>
+										<textarea id="new_list_name" rows="6" placeholder="Name Your Shopping List :)" style="width:300px;display:inline"></textarea>
+										<br/>
+										<a class="button green" style="display:inline;margin-left:10px;"  onclick="javascript:createList()">Create It !</a>
+										</form>
+										
+													</div>
+			
+			<!-- configure-->
+            
+			<div class="panel" data-title="Change Shopping List" id="configure">
+			                    <ul class="list" id="clist">
+					<li class='divider'>
+					Shopping List Settings
+					</li>
+										</ul>
+			</div>
+			
+			
+			</div>
 
 
 
 
             <!-- footer --> 
             <div id="navbar">
-                <a class="icon home" href="javascript:void" onclick="window.location='index.html'">Home</a>
+			                <a class="icon home" href="javascript:void" onclick="window.location='index.html'">Main</a>
+			     <a class="icon heart" href="#slist_div">Current List</a>
 				                <a class="icon tag" href="javascript:void" onclick="window.location = 'catalogue.html'">Catalog</a>
+								<a class="icon pin" href="#list_all" >Change List</a>
+																<a class="icon new" href="#new_list" >My Lists</a>
+																<a class="icon settings" href="#configure" >Configure List</a>
             </div>
         </div>
 	        <script type="text/javascript">
