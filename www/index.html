@@ -52,6 +52,7 @@
 
 
 
+
                 <!-- Login -->
                 <div class="panel" data-title="Login" id="login">
                     <br/>
@@ -135,20 +136,51 @@
                     </div>
 
                     <form id="login_screen" style="display:hidden;">
-                        Login Now for exciting services that islandfurniture app can offer !
+                        <div style="max-width:400px;margin-left:auto;margin-right:auto">
+						Login Now for exciting services that islandfurniture app can offer !
                         <br/>
                         <label for="email">Email</label><input id="email" type="text" placeholder="UserName">
                         <label for="pass">Password</label><input id="pass" type="password" placeholder="Password">
                         <div id="loginmsg" style="color:red;text-align:center">
                         </div>
-                        <div class="button-grouped flex">
-                            <a class="button orange">Register</a>
+						</div>
+                        <div class="button-grouped flex" style="max-width:400px;margin-left:auto;margin-right:auto">
+                            <a class="button orange" href="#register">Register</a>
                             <a class="button green" onclick="javascript:login();">Login Now</a>
-                            <a class="button red">Forget Password</a>
                         </div>
                     </form>
 
                 </div>
+				
+				
+				
+				
+								      <!-- Register -->
+                <script type="text/javascript">
+				$(document).ready(function(){
+				$("#register_form").attr("action",localStorage.getItem("IPADDRESS")+"rest/cs/register");
+				});
+				
+			</script>
+				<div class="panel" data-title="Register" id="register">
+				<div id="register_err" style="min-height:50px;">
+				</div>
+				    <form type="post" id="register_form" action="">
+      <div class="input-group">
+        <input id="email" type="text" placeholder="Your Email">
+        <input id="password" type="password" placeholder="Your Password">
+		<input id="password2" type="password" placeholder="Confirm Password">
+		<input id="name" type="text" placeholder="Your Name">
+		<input id="address" type="text" placeholder="Address">
+		<input id="phone" type="text" placeholder="Phone">
+		<input id="dob" type="date" placeholder="Date Of Birthday">		
+      </div>
+	  <a class="button green">Sign Up!</a>
+    </form>
+				
+				
+				</div>
+				
 
 
                 <!-- Settings -->
