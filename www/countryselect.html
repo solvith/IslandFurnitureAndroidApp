@@ -82,7 +82,7 @@
 
                         requesturl = ip_add + "rest/cs/allCO";
                         $.get(requesturl, function(data) {
-                            dataj = JSON.parse(data);
+                            dataj = data;
                             $("#countrylist").empty();
                             for (i = 0; i < dataj["Country"].length; i++)
                             {
@@ -109,7 +109,7 @@
                         location.href = "#"
                         requesturl = ip_add + "rest/cs/allstores?CO_CODE=" + country;
                         $.get(requesturl, function(data) {
-                            dataj = JSON.parse(data);
+                            dataj = data;
                             console.log(dataj);
                             var mapOptions = {
                                 zoom: 12,

@@ -37,6 +37,27 @@
             </div>
 
             <!-- content-->
+			<script type="text/javascript">
+			function updatesidebar(){
+			try{
+			
+			if (localStorage.getItem('cust_id')==null) return;
+			if (localStorage.getItem('cust_id')=="") return;
+			if (localStorage.getItem('store_id')==null) return;
+			if (localStorage.getItem('store_id')=="") return;
+			
+			requesturl=ip_add+"rest/cs/shoplist?sl_name="+localStorage.getItem("default_list")+"&cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id');
+$.get(requesturl,function(data){$('.cart_count').html(data.count);});
+}catch(err){}
+}
+
+$(document).ready(function(){
+setTimeout(function(){updatesidebar();},2000);
+});
+			</script>
+			
+			
+			
             <div id="content">
                 <!-- side nav -->
                 <nav>
@@ -44,7 +65,7 @@
                         <li  class="divider">By Category</li>
 
                         <li ><a href=""  onclick="location.href = 'catalogue.html'">Catalog</a></li>
-                        <li ><a href="" onclick="location.href='shoppingList.html'">Shopping List</a></li>
+                        <li ><a href="" onclick="location.href='shoppingList.html'">Shopping List<span class='af-badge cart_count' style='margin-right:20px;'>0</span></a></li>
                         <li ><a href="#login">Membership</a></li>
                         <li ><a href="#locate" onclick="javascript:localStorage.setItem('predefined_CO',localStorage.getItem('co_code'));window.location='countryselect.html'">Locate</a></li>
                     </ul>
@@ -93,10 +114,10 @@
                                 requesturl = ip_add+ "rest/cs/memberlogin?custid=" + localStorage.getItem("cust_id");
                                 console.log(requesturl);
                                 $.get(requesturl, function(data) {
-                                    dataj = JSON.parse(data);
-                                    localStorage.setItem("point", dataj["point"]);
-                                    localStorage.setItem("tier", dataj["tier"]);
-                                    localStorage.setItem("name", dataj["name"]);
+                                    
+                                    localStorage.setItem("point", data["point"]);
+                                    localStorage.setItem("tier", data["tier"]);
+                                    localStorage.setItem("name", data["name"]);
                                     updatemember();
 
                                 });
@@ -158,25 +179,64 @@
 								      <!-- Register -->
                 <script type="text/javascript">
 				$(document).ready(function(){
-				$("#register_form").attr("action",localStorage.getItem("IPADDRESS")+"rest/cs/register");
+
+				$("#register_form").on('submit',function(e){
+				e.preventDefault();
+				
+				if ($("#password").val()!=$("#password2").val()){
+								$("#register_err").html("<span style='color:red'>Error: Password not matched !</span>");
+
+								return;
+				}
+				
+				data=$("#register_form").serialize();
+				url=localStorage.getItem("IPADDRESS")+"rest/cs/register";
+				
+				$.ajax({
+				url:url,
+				type: "POST",
+				data: data,
+				success: function(data){
+				$("#register_err").html("<span style='color:green'>Successful ! Redirecting...</span>");
+				setTimeout(function(){window.location='#login';location.reload()},1500);
+				},
+				error:function(error){
+				$("#register_err").html("<span style='color:red'>Error: "+error+"</span>");
+				}
+				
 				});
+				
+				});
+				
+				});
+				
+				
+				
 				
 			</script>
 				<div class="panel" data-title="Register" id="register">
-				<div id="register_err" style="min-height:50px;">
+				<br/>
+				<div id="register_err" style="min-height:50px;font-weight:bold;font-size:15px;">
 				</div>
-				    <form type="post" id="register_form" action="">
+				    <form method="post" id="register_form" action="#">
       <div class="input-group">
-        <input id="email" type="text" placeholder="Your Email">
-        <input id="password" type="password" placeholder="Your Password">
-		<input id="password2" type="password" placeholder="Confirm Password">
-		<input id="name" type="text" placeholder="Your Name">
-		<input id="address" type="text" placeholder="Address">
-		<input id="phone" type="text" placeholder="Phone">
-		<input id="dob" type="date" placeholder="Date Of Birthday">		
+        <input name="email" type="email" placeholder="Your Email" required/>
+        <input id="password" name="password" type="password" placeholder="Your Password"  required/>
+		<input id="password2" name="password2" type="password" placeholder="Confirm Password"  required/>
+		<input name="name" type="text" placeholder="Your Name"  required/>
+		<input name="address" type="text" placeholder="Address"/>
+		<input name="phone" type="text" placeholder="Phone"  required/>
+		<input name="dob" type="date" placeholder="Date Of Birthday" value="01/01/1989"  required/>		
       </div>
-	  <a class="button green">Sign Up!</a>
+	  <input id="reg_button" type="submit" value="Register Me !" class="button green"/>
     </form>
+	<br/>
+	<br/>
+	<br/>
+	<br/>
+	<br/>
+	<br/>
+	
 				
 				
 				</div>
@@ -253,11 +313,29 @@
                     <ul class="list">
                         <li><a class="icon heart" href=""  onclick="location.href = 'catalogue.html'">Product Catalog</a></li>
 						
-                        <li><a class="icon star" href="" onclick="location.href='shoppingList.html'">Shopping List</a></li>
+                        <li><a class="icon star" href="" onclick="location.href='shoppingList.html'">Shopping List</a><span class='af-badge cart_count' style='margin-right:20px;'>0</span></li>
                         <li><a class="icon key" href="#login">Membership</a></li>
+						
+						<script type="text/javascript">
+$(document).ready(function(){
+						if (localStorage.getItem('cust_id')==null){
+						
+						$("#showifloggedin").hide();
+						}
+						if (localStorage.getItem('cust_id')==""){
+						
+						$("#showifloggedin").hide();
+						}
+
+});
+						
+						
+						
+						</script>
+						<li id="showifloggedin"><a class="" href="" onclick="javascript:window.location='NFC.html'"><i class="fa fa-qrcode"></i>&nbsp;Redempt Loyalty Points</a></li>
+
                         <li><a class="icon location" href="javascript:void" onclick="localStorage.setItem('predefined_CO',localStorage.getItem('co_code'));window.location='countryselect.html'">Locate</a></li>
                         <li><a class="icon settings" href="#settings">Settings</a></li>
-                        <li><a class="icon settings" href="" onclick="javascript:location.href = 'NFC.html'">Developer</a></li>
                     </ul>
 
 
@@ -272,6 +350,80 @@
                 <a class="icon settings" href="#login">Membership</a>
                 <a class="icon location" href="javascript:void" onclick="localStorage.setItem('predefined_CO',localStorage.getItem('co_code'));window.location='countryselect.html'">Locate</a>
             </div>
+			
+			
+			<script type="text/javascript">
+
+			already_toggled=false;
+			
+			function toggle_transc(transc_id){		
+				  requesturl=ip_add+"rest/cs/promote?cust_id="+localStorage.getItem('cust_id')+"&transc_id="+transc_id;
+				  $.ajax({url:requesturl,success:function(data){
+				  
+				  if (data.success==true){
+				  	  alert("Thank You ! \nPoints Added: "+data.added+"\nCurrent Points: "+data.current);
+	  
+	  if (data.promote.length>1){
+	  alert("Congratulation ! You are now "+data.promote+" membership Tier");
+	  }
+	  				location.href="index.html#login";
+				location.reload();
+				  
+				  }else{
+	alert("ERROR:"+data.error);
+	location.href="index.html#login";
+	location.reload();
+	  
+				  
+				  }
+
+
+	  
+	  }});
+			
+			}
+			
+			function init_qr(){
+			
+			document.addEventListener("backbutton", function(e){
+location.href="index.html";
+   location.reload();
+}, false);
+
+			
+			if (!already_toggled){
+				cordova.plugins.barcodeScanner.scan(
+      function (result) {
+
+	  toggle_transc(result.text);
+
+	  
+	  
+          //alert("We got a barcode\n" +
+            //    "Result: " + result.text + "\n" +
+              //  "Format: " + result.format + "\n" +
+                //"Cancelled: " + result.cancelled);
+				
+
+      }, 
+      function (error) {
+          alert("Scanning failed: " + error);
+		  location.href="index.html";
+		location.reload();
+      }
+   );
+   
+   already_toggled=true;
+   }
+   
+
+   
+			
+			
+			
+			}
+			</script>
+			
 
 
         </div>

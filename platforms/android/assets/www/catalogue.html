@@ -18,8 +18,8 @@ background-size: 100% auto;
 background-repeat: no-repeat;
 z-index:50;
 height:100%;
-max-height:500px;
-max-width:500px;
+max-height:250px;
+max-width:250px;
 margin-left:auto;
 margin-right:auto;
 }
@@ -31,20 +31,23 @@ if (localStorage.getItem('co_id')==null){
 window.location="countryselect.html";
 }
 $(document).ready(function(){
-requesturl=ip_add+"rest/cs/prepcatalogue?CO="+localStorage.getItem('co_id');
+
+requesturl=ip_add+"rest/cs/prepcatalogue?CO="+localStorage.getItem('co_id')+"&STOREID="+localStorage.getItem("store_id");
+console.log(requesturl);
 $("#catalg").bind("swipeLeft",minusone);
 $("#catalg").bind("swipeRight",plusone);
 
 
+
 $.get(requesturl,function(data){
-full_data=JSON.parse(data);
-catalogue_data=JSON.parse(data)['full'];
+full_data=data;
+catalogue_data=full_data['full'];
 load_cata();
 
 $("#furniture_cat").empty();
 $("#furniture_cat").append("<li class=\"divider\">Furnitures</li>");
 $("#furniture_cat").append("<li><a href=\"\" onclick=\"location.href='index.html'\">Home</a></li>");
-$("#furniture_cat").append("<li><a href=\"\" onclick=\"location.href='shoppingList.html'\">My Shopping List</a></li>");
+$("#furniture_cat").append("<li><a href=\"\" onclick=\"location.href='shoppingList.html'\">My Shopping List</a><span class='af-badge' id='cart_count' style='margin-right:20px;'>?</span></li>");
 $("#furniture_cat").append("<li><a href='javascript:void'  onclick=\"drill_cat('full')\">Everything ["+full_data['full'].length+"]</a></li>");
 
 for (i=0;i<full_data["category"].length;i++)
@@ -59,6 +62,8 @@ $("#furniture_cat").append("<li><a href='javascript:void()'  onclick=\"drill_cat
 
 
 });
+
+
 
 function replaceAll(find, replace, str) {
   return str.replace(new RegExp(find, 'g'), replace);
@@ -78,9 +83,9 @@ function load_cata(){
 
 var data=catalogue_data[browseID];
 requesturl=ip_add+"rest/cs/furnitureimage?id="+data[0];
-
+console.log(data);
 $("#fur_name").html(data[1]);
-$("#fur_text").html(data[2]);
+$("#fur_text").html(data[2]+"<br/><b>"+data[4]+"</b>");
 $("#fur_price").html("$"+data[3]);
 $(".cata").css("background-image","url('"+requesturl+"')");
 
@@ -88,9 +93,11 @@ $(".cata").css("background-image","url('"+requesturl+"')");
 
 function addtoCart(){
 var data=catalogue_data[browseID];
-requesturl=ip_add+"rest/cs/additemtoshoplist?cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id')+"&fm_id="+data[0]+"&qty=1";
+requesturl=ip_add+"rest/cs/additemtoshoplist?cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id')+"&fm_id="+data[0]+"&qty=1&sl_name="+localStorage.getItem("default_list");
+console.log(requesturl);
 $.get(requesturl,function(data){
 $(document.body).popup({title:"Information",message:data});
+updatesidebar();
 
 
 });
@@ -116,6 +123,17 @@ browseID=browseID-1;
 }
 load_cata();
 }
+
+function updatesidebar(){
+	requesturl=ip_add+"rest/cs/shoplist?sl_name="+localStorage.getItem("default_list")+"&cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id');
+$.get(requesturl,function(data){$('#cart_count').html(data.count);})
+
+}
+
+$(document).ready(function(){
+
+setTimeout(function(){updatesidebar();},2000);
+});
 
 </script>   
 </head>
@@ -154,26 +172,26 @@ load_cata();
 
 <div id="fur_Stuffs" style="z-index:100;position:absolute;bottom:80px;width:100%;text-align:center;">
 <span id="fur_name" style="font-size:1.6em;font-weight:bold;">
-TITLE
+Loading...
 </span>
 <br/>
 <span id="fur_text">
-TEXT
+
 </span>
 <br/>
 <span id="fur_price" style="font-size:1.5em;font-weight:bold">
-COST
+
 </span>
 </div>
 
 
 <div style="z-index:999;position:absolute;bottom:0;width:100%;text-align:center; padding-left:50px;padding-right:50px;" >
- <i class="fa fa-chevron-left fa-6" style="float:left;color:#0088d1; font-size:3em" onclick="javascript:minusone()"></i>
+ <i class="fa fa-chevron-left fa-6" style="float:left;color:#1ABC9C; font-size:3em" onclick="javascript:minusone()"></i>
   <a class="button green" id="fur_button"  onclick="javascript:addtoCart()">
  <i class="fa fa-shopping-cart"></i> 
  ADD TO LIST
   </a>
-  <i class="fa fa-chevron-right fa-6" style="float:right;color:#0088d1; font-size:3em" onclick="javascript:plusone()"></i>
+  <i class="fa fa-chevron-right fa-6" style="float:right;color:#1ABC9C; font-size:3em" onclick="javascript:plusone()"></i>
 </div>
 
 

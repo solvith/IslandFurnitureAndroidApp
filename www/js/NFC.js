@@ -34,62 +34,82 @@ var app = {
     // function, we must explicitly call 'app.receivedEvent(...);'
 onDeviceReady: function() {
     app.receivedEvent('deviceready');
-	nfc.addMimeTypeListener("text/isf",function (nfcEvent) {
-            var tag = nfcEvent.tag,
-                ndefMessage = tag.ndefMessage;
+	init_qr();
+	
 
-            // dump the raw json of the message
-            // note: real code will need to decode
-            // the payload from each record
-			alert("NFC Event Detected !");
-			localStorage("NFC",JSON.stringify(nfc.bytesToHexString(nfcEvent.tag.id)));
-            // assuming the first record in the message has 
-            // a payload that can be converted to a string.
-        },function(){console.log('MIME LISTENER REGISTERED');},function(){alert('failed to register listener');});
+
 		
 		
 
-    // Read NDEF formatted NFC Tags
-    nfc.addNdefListener (
-        function (nfcEvent) {
-            var tag = nfcEvent.tag,
-                ndefMessage = tag.ndefMessage;
-				var mimetype="";
-				if (ndefMessage!=undefined){
-				if (ndefMessage[0]!=undefined){
-				if (ndefMessage[0]['type']!=undefined){
-				mimetype=nfc.bytesToString(ndefMessage[0]['type']);
-				}
-				}
-				}
-								console.log(JSON.stringify(mimetype)+"===="+JSON.stringify(nfcEvent.tag));
-								
-								if (mimetype!="text/isf"){
-								  alert('This Tag is not IslandFurniture Tag. ID:'+JSON.stringify(nfc.bytesToHexString(nfcEvent.tag.id)));
-								  				var message = [ndef.mimeMediaRecord("text/isf",nfc.stringToBytes("ISF_SIG"))];
-				
-nfc.write(message, function(){alert('This tag is now an islandfurniture tag')}, function(reason){alert("TRY AGAIN " + reason)});			
-
-
-								}
-
-        }, 
-        function () { // success callback
-        },
-        function (error) { // error callback
-            alert("Error adding NDEF listener " + JSON.stringify(error));
-        }
-    );
+   
 },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
-
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');
-
-        console.log('Received Event: ' + id);
     }
 };
+
+	already_toggled=false;
+			
+			function toggle_transc(transc_id){		
+				  requesturl=localStorage.getItem("IPADDRESS")+"rest/cs/promote?cust_id="+localStorage.getItem('cust_id')+"&transc_id="+transc_id;
+				  $.ajax({url:requesturl,success:function(data){
+				  
+				  if (data.success==true){
+				  	  alert("Thank You ! \nPoints Added: "+data.added+"\nCurrent Points: "+data.current);
+	  
+	  if (data.promote.length>1){
+	  alert("Congratulation ! You are now "+data.promote+" membership Tier");
+	  }
+	  				window.location="index.html#login";
+				  
+				  }else{
+	alert("ERROR:"+data.error);
+	window.location="index.html#login";
+	  
+				  
+				  }
+
+
+	  
+	  }});
+			
+			}
+			
+			function init_qr(){
+			
+			document.addEventListener("backbutton", function(e){
+window.location="index.html";
+}, false);
+
+			
+			if (!already_toggled){
+				cordova.plugins.barcodeScanner.scan(
+      function (result) {
+
+	  toggle_transc(result.text);
+
+	  
+	  
+          //alert("We got a barcode\n" +
+            //    "Result: " + result.text + "\n" +
+              //  "Format: " + result.format + "\n" +
+                //"Cancelled: " + result.cancelled);
+				
+
+      }, 
+      function (error) {
+          alert("Scanning failed: " + error);
+window.location="index.html";
+
+      }
+   );
+   
+   already_toggled=true;
+   }
+   
+
+   
+			
+			
+			
+}
