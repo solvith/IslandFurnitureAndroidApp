@@ -1,0 +1,398 @@
+<html>
+    <!-- NFC INTENT NOT PERFECT 
+    
+    -->
+
+    <head>
+        <title>Island Furniture App</title>
+        <link rel="stylesheet" href="css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="css/af.ui.css" />
+        <link rel="stylesheet" type="text/css" href="css/icons.css" />
+        <script type="text/javascript" charset="utf-8" src="ui/appframework.ui.min.js"></script> 
+        <script type="text/javascript" src="cordova.js"></script>
+				<script type="text/javascript" src="js/NFCINDEX.js"></script>
+        <style type="text/css">
+            .label{
+                width:150px;
+            }
+        </style>
+
+        <script type="text/javascript">$.ui.useOSThemes = false;
+            ip_add = localStorage.getItem("IPADDRESS");
+            if (ip_add == null) {
+                location.href = "index.html#settings";
+            }
+            
+			//Require Login
+			
+			 if (localStorage.getItem("cust_id") == null || localStorage.getItem("cust_id") == "")
+			 {
+			 window.location='index.html#login';
+			 }
+			 
+			 //Require Store
+			 
+			 if (localStorage.getItem('store')==null){
+			 window.location='countryselect.html';
+			 }
+			 
+			 if (localStorage.getItem("default_list")==null){
+			 localStorage.setItem("default_list","New App Shopping List");
+			 }
+			 
+			 
+			
+			$(document).ready(function(){
+			requesturl=ip_add+"rest/cs/shoplist?sl_name="+localStorage.getItem("default_list")+"&cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id');
+			
+			if (localStorage.getItem("NFC")!=null && localStorage.getItem("NFC")!="")
+			{
+			requesturlnfc=ip_add+"rest/cs/additembynfc?sl_name="+localStorage.getItem("default_list")+"&cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id')+"&NFC_TAG="+localStorage.getItem("NFC");
+			localStorage.removeItem("NFC");
+			$.get(requesturlnfc,function(datan){
+			$(document.body).popup({title:"Information",message:datan, doneCallback: function () {
+			window.location='shoppingList.html';
+			}});
+			
+			});
+			}
+			
+			
+			$.get(ip_add + "rest/cs/allstores?CO_CODE=" + localStorage.getItem("co_code"),function(data){
+
+			datap=data;
+			
+			for (i=0;i<datap["Stores"].length;i++)
+			{
+			if (datap["Stores"][i][6]==localStorage.getItem("store_id")){continue;}
+			
+			$("#store_select").append($("<option></option>")
+         .attr("value",datap["Stores"][i][6])
+         .text(datap["Stores"][i][0])); 
+		 }
+         });
+			
+			//store_select
+			
+			
+			
+			$.get(requesturl,function(data){
+			dataj=data;
+			
+			
+			localStorage.setItem("default_listID",dataj['shoplistid']);
+			
+			if (dataj['details'].length==0){
+						$("<li>Opps Nothing in here ! Add something from Shopping list now !</li>").appendTo('#slist');
+
+			}
+
+			for (i=0;i<dataj['details'].length;i++)
+			{
+			newrow=$("#template").clone().css('display','').attr('id','row_'+i);
+			if (dataj['details'][i]['PromoTxt']==""){
+			newrow.find('label.name').html(dataj['details'][i]['fm'] +" @ $"+dataj['details'][i]['uprice']);
+			}else{
+			newrow.find('label.name').html(dataj['details'][i]['fm'] +"@<span style='text-decoration: line-through;'>"+dataj['details'][i]['oprice']+"</span><br/>Promo:"+dataj['details'][i]['uprice']);
+			}
+			
+			newrow.find('label.subtotal').html('Sub Total: $'+dataj['details'][i]['price']);
+			newrow.find('input').val(dataj['details'][i]['qty']);
+			newrow.find('.status').html(dataj['details'][i]['inv_txt']);
+			
+			newrow.find('.green').bind('click',
+			
+			
+			(function(ii,oqty,fid){return function(){
+			val=$("#row_"+ii+" input").val()-oqty;
+			requesturl=ip_add+"rest/cs/additemtoshoplist?sl_name="+localStorage.getItem("default_list")+"&cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id')+"&fm_id="+fid+"&qty="+val;
+		$(document.body).popup({title:"Updating",message:"Please Wait"});
+		
+		$.get(requesturl,function(data){
+		window.location='shoppingList.html';
+		});
+			
+			}})(i,dataj['details'][i]['qty'],dataj['details'][i]['fid'])
+			
+			);
+			
+						newrow.find('.red').bind('click',
+			
+			
+			(function(sldid){return function(){
+			requesturl=ip_add+"rest/cs/deleteitemfromshoplist?detailID="+sldid;
+		$(document.body).popup({title:"Updating",message:"Please Wait"});
+		
+		$.get(requesturl,function(data){
+		window.location='shoppingList.html';
+		});
+			
+			}})(dataj['details'][i]['delete_id'])
+			
+			);
+			
+			
+			
+			//deleteitemfromshoplist
+			
+			
+			
+			newrow.appendTo('#slist');
+			}
+			
+			
+			$("<li class='divider' id='total_price' style='text-align:right;font-size:1.5em'>TOTAL PRICE: $"+dataj['totalprice']+"</li>").appendTo('#slist');
+
+			})
+
+			
+			
+			requesturl=ip_add+"rest/cs/getShoppingList?cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id');
+			
+			//For list of shopping List
+			$.get(requesturl,function(data){
+			//template_2
+			dataj=data;
+			for (i=0;i<dataj["ShoppingLists"].length;i++){
+
+			
+						newrow=$("#template_2").clone().css('display','').attr('id','list_'+dataj["ShoppingLists"][i]["ID"]);
+						
+
+						
+						newrow.find(".list_name").html(dataj["ShoppingLists"][i]["name"]);
+						
+						if (dataj["ShoppingLists"][i]["name"]==localStorage.getItem("default_list")){
+						newrow.find(".green").remove();
+						}else{
+						newrow.find(".green").bind("click",(function(name){return function(){
+						
+						localStorage.setItem("default_listID",dataj["ShoppingLists"]["ID"]);
+						localStorage.setItem("default_list",name);
+									 alert("Default List Changed !");
+									 window.location="shoppingList.html";
+						};})(dataj["ShoppingLists"][i]["name"]));
+						
+						
+
+						
+						}
+						
+						newrow.find(".red").bind("click",(function(id){
+						return(function(){
+						removeSL(id);
+						
+						});
+						})(dataj["ShoppingLists"][i]["ID"]));
+						
+						
+						newrow.find(".yellow").bind("click",(function(id){
+						return(function(){
+						localStorage.setItem("movelist",id);
+						window.location="shoppingList.html?"+id+"#move";
+		
+						
+						});
+						})(dataj["ShoppingLists"][i]["ID"]));
+						
+
+						newrow.appendTo("#alllist");
+									console.log("Creating Row for :"+dataj["ShoppingLists"][i]["ID"]);
+						
+			
+			}
+			
+			});
+			
+			})
+			
+			
+			//Code Sniplet
+			
+			function removeSL(sldid){
+		requesturl=ip_add+"rest/cs/deleteshoplist?sID="+sldid;
+		$.get(requesturl,function(data){
+		alert("Success !");
+		location.reload()
+		});
+			}
+			
+			function createList(){
+			
+			localStorage.setItem("default_list",$("#new_list_name").val());
+			alert('List Created');
+			
+			//new_list_name
+			requesturl=ip_add+"rest/cs/shoplist?sl_name="+localStorage.getItem("default_list")+"&cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id');
+			
+			$.get(requesturl,function(data){
+			window.location="shoppingList.html?new_list="+$("#new_list_name").val()+"#slist_div";
+			});
+			
+			}
+			
+			function changeStore(){
+			//rest/cs/moveshoplist?sLID=&stID=
+			
+			selectedList=localStorage.getItem("movelist");
+			newStoreID=$("#store_select").val();
+			shopList=localStorage.getItem("default_listID");
+			requesturl=ip_add+"rest/cs/moveshoplist?sLID="+selectedList+"&stID="+newStoreID;
+			
+			if (selectedList==shopList)
+			{
+			localStorage.removeItem("default_listID");
+			localStorage.removeItem("default_list");
+			}
+			
+			$.get(requesturl,function(data){
+			
+			
+						$(document.body).popup({title:"Shopping List shifted !",message:"Please change Store to see list", doneCallback: function () {
+    window.location='shoppingList.html#list_all';
+    }});
+			
+			
+			});
+
+			
+			}
+			
+			
+			
+        </script>   
+    </head>
+    <body> 
+
+
+
+        <div id="afui">
+
+            <div id="header">
+                <!-- header -->
+                <header>
+                </header>
+            </div>
+
+            <!-- content-->
+            <div id="content">
+			
+<!-- into shopping List-->
+                <div class="panel" data-title="Shopping List" id="slist_div">
+                    <ul class="list" id="slist">
+					<li class='divider'>
+					
+										<script>document.write(localStorage.getItem("default_list")+" @ "+localStorage.getItem('store'));</script>
+										</li>
+					<li id="template" style="display:none; text-align:center;height:200px">
+					<table style="width:100%">
+					<tr>
+					<td><label class='name' style='font-size:0.8em;font-weight:bold;width:100px'>Item Name</label></td>
+					<td><input id="" type="number" placeholder="Qty"></td>
+					</tr>
+										<tr>
+					<td></td>
+					<td><span class='status'></span></td>
+					</tr>
+					
+					<tr>
+					<td>
+					<label class='subtotal' style='font-size:0.8em;width:100px'></label>
+					</td>
+					<td>
+					<form>
+					<div class="button-grouped">
+					  <a class="button green">Modify</a>
+					  <a class="button red">Remove</a>
+					  </div>
+					  </form>
+					</td>
+					</tr>
+
+					</table>
+
+
+					  </li>
+					  
+
+					  
+                    </ul>
+                </div>
+				
+				<!-- shopping List Change-->
+            
+			<div class="panel" data-title="Change Shopping List" id="list_all">
+			                    <ul class="list" id="alllist">
+					<li class='divider'>
+					Your Shopping List(s) @
+										<script>document.write("Shopping List@"+localStorage.getItem('store'));</script>
+										</li>
+										<li id="template_2" style=" text-align:center;display:none;">
+										<b>Shopping List:</b>
+										<span class="list_name">ABC list</span>
+										<br/>
+										<div class="button-grouped flex">
+										<a class="button green">Set Default</a>
+										<a class="button yellow">Move</a>
+										<a class="button red">Remove</a>
+										</div>
+										</li>
+										</ul>
+			</div>
+
+			
+			
+			
+							<!-- new List-->
+            
+			<div class="panel" data-title="Change Shopping List" id="new_list" style="text-align:center">
+			                    <div class="formGroupHead">
+					New List @
+										<script>document.write("Shopping List@"+localStorage.getItem('store'));</script>
+										</div>
+										<form>
+										<textarea id="new_list_name" rows="6" placeholder="Name Your Shopping List :)" style="width:300px;display:inline"></textarea>
+										<br/>
+										<a class="button green" style="display:inline;margin-left:10px;"  onclick="javascript:createList()">Create It !</a>
+										</form>
+										
+													</div>
+			
+			
+			
+			</div>
+			
+			<!-- move shopping list -->
+
+<div class="panel" data-title="Move Shopping List" id="move" style="text-align:center">
+
+  <div class="formGroupHead">Move Shopping List to :</div>
+  <form>
+    <select id="store_select" style="width:150px;">
+	</select>
+	</form>
+	<br/>
+	<a class="button green" style="width:150px" onclick="javascript:changeStore();">Move</a>
+
+			</div>
+			
+			
+
+
+
+
+            <!-- footer --> 
+            <div id="navbar">
+			                <a class="icon home" href="javascript:void" onclick="window.location='index.html'">Main</a>
+			     <a class="icon heart" href="#slist_div">Current List</a>
+
+								<a class="icon pin" href="#list_all" >My Lists</a>
+																<a class="icon new" href="#new_list" >New List</a>
+																				                <a class="icon tag" href="javascript:void" onclick="window.location = 'catalogue.html'">Catalog</a>
+            </div>
+        </div>
+	        <script type="text/javascript">
+            app.initialize();
+        </script>
+    </body>
+</html>

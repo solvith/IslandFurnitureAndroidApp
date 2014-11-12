@@ -226,7 +226,9 @@ setTimeout(function(){updatesidebar();},2000);
 		<input name="name" type="text" placeholder="Your Name"  required/>
 		<input name="address" type="text" placeholder="Address"/>
 		<input name="phone" type="text" placeholder="Phone"  required/>
-		<input name="dob" type="date" placeholder="Date Of Birthday" value="01/01/1989"  required/>		
+		<input name="dob" type="date" placeholder="Date Of Birthday" value="01/01/1989"  required/>
+			<input id="add_in_cn" name="country" type="hidden" value=""/>
+			<script type="text/javascript">$(document).ready(function(){$('#add_in_cn').val(localStorage.getItem('co_name'))})</script>
       </div>
 	  <input id="reg_button" type="submit" value="Register Me !" class="button green"/>
     </form>

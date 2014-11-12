@@ -1,0 +1,434 @@
+<html>
+    <!-- NFC INTENT NOT PERFECT 
+    
+    -->
+
+    <head>
+        <title>Island Furniture App</title>
+        <link rel="stylesheet" href="css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="css/af.ui.css" />
+        <link rel="stylesheet" type="text/css" href="css/icons.css" />
+		<script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" charset="utf-8" src="ui/appframework.ui.min.js"></script>
+		<script type="text/javascript" src="js/NFCINDEX.js"></script>
+
+        <script type="text/javascript">
+
+            $.ui.useOSThemes = false;
+
+            if (localStorage.getItem('co_id') == null && window.location.hash != '#settings') {
+                window.location = 'countryselect.html';
+            }else{
+			}
+
+        </script>   
+    </head>
+    <body> 
+
+
+
+        <div id="afui">
+
+            <div id="header">
+                <!-- header -->
+                <header>
+                    <a id='menubadge' onclick='af.ui.toggleSideMenu()' class='menuButton'></a>
+                </header>
+            </div>
+
+            <!-- content-->
+			<script type="text/javascript">
+			function updatesidebar(){
+			try{
+			
+			if (localStorage.getItem('cust_id')==null) return;
+			if (localStorage.getItem('cust_id')=="") return;
+			if (localStorage.getItem('store_id')==null) return;
+			if (localStorage.getItem('store_id')=="") return;
+			
+			requesturl=ip_add+"rest/cs/shoplist?sl_name="+localStorage.getItem("default_list")+"&cust_id="+localStorage.getItem('cust_id')+"&store_id="+localStorage.getItem('store_id');
+$.get(requesturl,function(data){$('.cart_count').html(data.count);});
+}catch(err){}
+}
+
+$(document).ready(function(){
+setTimeout(function(){updatesidebar();},2000);
+});
+			</script>
+			
+			
+			
+            <div id="content">
+                <!-- side nav -->
+                <nav>
+                    <ul class="list">
+                        <li  class="divider">By Category</li>
+
+                        <li ><a href=""  onclick="location.href = 'catalogue.html'">Catalog</a></li>
+                        <li ><a href="" onclick="location.href='shoppingList.html'">Shopping List<span class='af-badge cart_count' style='margin-right:20px;'>0</span></a></li>
+                        <li ><a href="#login">Membership</a></li>
+                        <li ><a href="#locate" onclick="javascript:localStorage.setItem('predefined_CO',localStorage.getItem('co_code'));window.location='countryselect.html'">Locate</a></li>
+                    </ul>
+                </nav>
+
+
+
+
+                <!-- Login -->
+                <div class="panel" data-title="Login" id="login">
+                    <br/>
+
+                    <script type="text/javascript">
+                        function login() {
+                            localStorage.setItem("email", $("#email").val());
+                            localStorage.setItem("pass", $("#pass").val());
+
+                    //remember to change to ws
+                            requesturl = ip_add+ "rest/auth/memberlogin?email=" + $("#email").val() + "&password=" + $("#pass").val();
+                            $.get(requesturl, function(data) {
+                                if (data == 'FAIL') {
+                                    $("#loginmsg").html("Login Failed !");
+                                } else {
+                                    localStorage.setItem("cust_id", data);
+                                    window.location = 'index.html?logout#login';
+                                }
+                            });
+                        }
+
+                        function logout() {
+                            localStorage.setItem("pass", "");	
+                            localStorage.setItem("cust_id", "");
+                            localStorage.setItem("point", "");
+                            localStorage.setItem("tier", "");
+                            localStorage.setItem("name", "");
+                            window.location = 'index.html?login#login';
+                        }
+
+
+                        $(document).ready(function() {
+                            $("#email").val(localStorage.getItem("email"));
+                            $("#pass").val(localStorage.getItem("pass"));
+
+                    //Refresh Points
+                            if (localStorage.getItem("cust_id") != null && localStorage.getItem("cust_id") != "") {
+                                requesturl = ip_add+ "rest/cs/memberlogin?custid=" + localStorage.getItem("cust_id");
+                                console.log(requesturl);
+                                $.get(requesturl, function(data) {
+                                    
+                                    localStorage.setItem("point", data["point"]);
+                                    localStorage.setItem("tier", data["tier"]);
+                                    localStorage.setItem("name", data["name"]);
+                                    updatemember();
+
+                                });
+
+                                updatemember();
+
+                                $("#logout").show();
+                                $("#login_screen").hide();
+
+                            } else {
+                                $("#logout").hide();
+                                $("#login_screen").show();
+                            }
+
+                        });
+
+                        function updatemember() {
+                            if (localStorage.getItem("name") != "" && localStorage.getItem("name") != null) {
+                                $("#member_name").html(localStorage.getItem("name"));
+                                $("#Tier").html(localStorage.getItem("tier"));
+                                $("#cpoint").html(localStorage.getItem("point"));
+                            }
+                        }
+                    </script>
+                    <div id="logout" style="display:hidden">
+                        <ul class="list">
+                            <li><i class="fa fa-users"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;font-size:1.2em">Name:</span> <span id="member_name"></span></li>
+                            <li><i class="fa fa-key"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;font-size:1.2em">Membership Tier:</span> <span id="Tier"></span></li>
+                            <li><i class="fa fa-money"></i>&nbsp;&nbsp;&nbsp;<span style="font-weight:bold;font-size:1.2em">Current Points:</span> <span id="cpoint"></span></li>
+                            <br/>
+                            <div style="text-align:center">
+                                <a class="button red" onclick="javascript:logout();" style="width:150px;">Logout</a>
+                            </div>
+                        </ul>
+                        <form id="">
+                        </form>
+                    </div>
+
+                    <form id="login_screen" style="display:hidden;">
+                        <div style="max-width:400px;margin-left:auto;margin-right:auto">
+						Login Now for exciting services that islandfurniture app can offer !
+                        <br/>
+                        <label for="email">Email</label><input id="email" type="text" placeholder="UserName">
+                        <label for="pass">Password</label><input id="pass" type="password" placeholder="Password">
+                        <div id="loginmsg" style="color:red;text-align:center">
+                        </div>
+						</div>
+                        <div class="button-grouped flex" style="max-width:400px;margin-left:auto;margin-right:auto">
+                            <a class="button orange" href="#register">Register</a>
+                            <a class="button green" onclick="javascript:login();">Login Now</a>
+                        </div>
+                    </form>
+
+                </div>
+				
+				
+				
+				
+								      <!-- Register -->
+                <script type="text/javascript">
+				$(document).ready(function(){
+
+				$("#register_form").on('submit',function(e){
+				e.preventDefault();
+				
+				if ($("#password").val()!=$("#password2").val()){
+								$("#register_err").html("<span style='color:red'>Error: Password not matched !</span>");
+
+								return;
+				}
+				
+				data=$("#register_form").serialize();
+				url=localStorage.getItem("IPADDRESS")+"rest/cs/register";
+				
+				$.ajax({
+				url:url,
+				type: "POST",
+				data: data,
+				success: function(data){
+				$("#register_err").html("<span style='color:green'>Successful ! Redirecting...</span>");
+				setTimeout(function(){window.location='#login';location.reload()},1500);
+				},
+				error:function(error){
+				$("#register_err").html("<span style='color:red'>Error: "+error+"</span>");
+				}
+				
+				});
+				
+				});
+				
+				});
+				
+				
+				
+				
+			</script>
+				<div class="panel" data-title="Register" id="register">
+				<br/>
+				<div id="register_err" style="min-height:50px;font-weight:bold;font-size:15px;">
+				</div>
+				    <form method="post" id="register_form" action="#">
+      <div class="input-group">
+        <input name="email" type="email" placeholder="Your Email" required/>
+        <input id="password" name="password" type="password" placeholder="Your Password"  required/>
+		<input id="password2" name="password2" type="password" placeholder="Confirm Password"  required/>
+		<input name="name" type="text" placeholder="Your Name"  required/>
+		<input name="address" type="text" placeholder="Address"/>
+		<input name="phone" type="text" placeholder="Phone"  required/>
+		<input name="dob" type="date" placeholder="Date Of Birthday" value="01/01/1989"  required/>		
+      </div>
+	  <input id="reg_button" type="submit" value="Register Me !" class="button green"/>
+    </form>
+	<br/>
+	<br/>
+	<br/>
+	<br/>
+	<br/>
+	<br/>
+	
+				
+				
+				</div>
+				
+
+
+                <!-- Settings -->
+                <div class="panel" data-title="Settings" id="settings" >
+                    <form>
+                        <br/>
+
+                        <br/>
+                        <ul class='list'>
+                            <li>
+                                <label for="IP_ADD">IP Address: </label>
+                                <input style="max-width:400px;" id="IP_ADD" type="text" placeholder="SERVER IP ADDRESS" value="https://172.28.191.103/ws/" onchange="javascript:update_ip(this.value)">
+                            </li>
+                            <li>
+                                <label for="">Preferred Store: </label>
+                                <script>
+                                    $(document).ready(function() {
+                                        $("#pref_store").html("&nbsp;" + localStorage.getItem('store'));
+                                    })
+                                </script>
+                                <div id="pref_store" style="display:inline;width:150px">
+                                </div>
+
+                                <a href="" onclick="window.location = 'countryselect.html'" style="color:green">(Change)</a>
+                            </li>
+                        </ul>
+
+
+                        <br/>
+                        <div style="text-align:center">
+                            <a class="button green" onclick="javascript:update_ip($('#IP_ADD').val());
+                    window.location = 'index.html';">Save Settings</a>
+                        </div>
+
+                        <script type="text/javascript">
+                            if (localStorage.getItem("IPADDRESS") != null)
+                            {
+                                $("#IP_ADD").val(ip_add);
+                            }
+
+                            function update_ip(value) {
+                                localStorage.setItem("IPADDRESS", value);
+                            }
+
+                            $(document).ready(function() {
+                                ip_add = localStorage.getItem("IPADDRESS");
+
+                                if (ip_add != "") {
+                                    $("#IP_ADD").val(ip_add);
+                                }
+                            });
+
+                            var ip_add = "";
+                            function get_ip() {
+                                ip_add = localStorage.getItem("IPADDRESS");
+
+                            }
+
+                            get_ip();
+
+                        </script>
+
+                        <br/>
+                    </form>
+
+                </div>
+
+                <!-- side banner-->
+                <div class="panel" data-title="Island Furniture" selected="true" id="home">
+                    <ul class="list">
+                        <li><a class="icon heart" href=""  onclick="location.href = 'catalogue.html'">Product Catalog</a></li>
+						
+                        <li><a class="icon star" href="" onclick="location.href='shoppingList.html'">Shopping List</a><span class='af-badge cart_count' style='margin-right:20px;'>0</span></li>
+                        <li><a class="icon key" href="#login">Membership</a></li>
+						
+						<script type="text/javascript">
+$(document).ready(function(){
+						if (localStorage.getItem('cust_id')==null){
+						
+						$("#showifloggedin").hide();
+						}
+						if (localStorage.getItem('cust_id')==""){
+						
+						$("#showifloggedin").hide();
+						}
+
+});
+						
+						
+						
+						</script>
+						<li id="showifloggedin"><a class="" href="" onclick="javascript:window.location='NFC.html'"><i class="fa fa-qrcode"></i>&nbsp;Redempt Loyalty Points</a></li>
+
+                        <li><a class="icon location" href="javascript:void" onclick="localStorage.setItem('predefined_CO',localStorage.getItem('co_code'));window.location='countryselect.html'">Locate</a></li>
+                        <li><a class="icon settings" href="#settings">Settings</a></li>
+                    </ul>
+
+
+                </div>
+            </div>
+
+            <!-- footer --> 
+            <div id="navbar">
+                <a class="icon home" href="#home">Home</a>
+                <a class="icon tag" href="javascript:void" onclick="window.location = 'catalogue.html'">Catalog</a>
+                <a class="icon star" href="javascript:void" onclick="window.location = 'shoppingList.html'">Shopping List</a>
+                <a class="icon settings" href="#login">Membership</a>
+                <a class="icon location" href="javascript:void" onclick="localStorage.setItem('predefined_CO',localStorage.getItem('co_code'));window.location='countryselect.html'">Locate</a>
+            </div>
+			
+			
+			<script type="text/javascript">
+
+			already_toggled=false;
+			
+			function toggle_transc(transc_id){		
+				  requesturl=ip_add+"rest/cs/promote?cust_id="+localStorage.getItem('cust_id')+"&transc_id="+transc_id;
+				  $.ajax({url:requesturl,success:function(data){
+				  
+				  if (data.success==true){
+				  	  alert("Thank You ! \nPoints Added: "+data.added+"\nCurrent Points: "+data.current);
+	  
+	  if (data.promote.length>1){
+	  alert("Congratulation ! You are now "+data.promote+" membership Tier");
+	  }
+	  				location.href="index.html#login";
+				location.reload();
+				  
+				  }else{
+	alert("ERROR:"+data.error);
+	location.href="index.html#login";
+	location.reload();
+	  
+				  
+				  }
+
+
+	  
+	  }});
+			
+			}
+			
+			function init_qr(){
+			
+			document.addEventListener("backbutton", function(e){
+location.href="index.html";
+   location.reload();
+}, false);
+
+			
+			if (!already_toggled){
+				cordova.plugins.barcodeScanner.scan(
+      function (result) {
+
+	  toggle_transc(result.text);
+
+	  
+	  
+          //alert("We got a barcode\n" +
+            //    "Result: " + result.text + "\n" +
+              //  "Format: " + result.format + "\n" +
+                //"Cancelled: " + result.cancelled);
+				
+
+      }, 
+      function (error) {
+          alert("Scanning failed: " + error);
+		  location.href="index.html";
+		location.reload();
+      }
+   );
+   
+   already_toggled=true;
+   }
+   
+
+   
+			
+			
+			
+			}
+			</script>
+			
+
+
+        </div>
+    </body>
+	        <script type="text/javascript">
+            app.initialize();
+        </script>
+</html>
